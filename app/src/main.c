@@ -5,91 +5,57 @@ main.c - главный модуль программы.
 МК-101
 */
 
-// Ошибка неправильного формата ввода
+#include <stdio.h>
+#include <string.h>
+#include "getopt.h"
+
+// Вывод ошибки
 #define printError(text); \
 printf("%s\n", text); \
 exit(1);
-
-// Задание аргументов по флагам
-#define setNumValue(variable); \
-if(cur + 1 < argc) { \
-	int len = strlen(argv[cur+1]); \
-	for(int i = 0; i < len; ++i) { \
-		if(argv[cur+1][i] < 0x30 || argv[cur+1][i] > 0x39) { \
-			printError("Аргумент должен быть числом!"); \
-		} \
-	} \
-	sscanf(argv[cur+1], "%llu", &variable); \
-} else { \
-	printError("Не передан аргумент к флагу!"); \
-}
-
-// Проверка повтора флага
-#define checkFlag(num); \
-if(flags & (1 << num)) { \
-	printError("Повторное использование флага!"); \
-} else { \
-	flags |= (1 << num); \
-}
-
-#include <stdio.h>
-#include <string.h>
 
 int main(int argc, char *argv[], char *envp[]) {
 
 	// Переменные
 	size_t offset = 0, readLen = 0, biteLen = 1, biteAmount = 16;
-	unsigned char pathInd = 0, dirInd = 0, formatInd = 0, flags = 0;
+	unsigned char pathInd = 0, dirInd = 0, formatInd = 0;
 	// -----------------------------------------------
 
-	// Читаем аргументы
-	int cur = 1;
-	for(; cur < argc; cur += 2) {
+	// Чтение флагов
+	int c;
+	while ((c = getopt(argc, argv, "hi:o:l:g:n:d:f:")) != -1) {
+		switch (c) {
+			case 'h':
+				printf("Usage: %s -i -o -l -g -n -d -f\n", argv[0]);
+				break;
 
-		// Проверка правильности флага
-		if(argv[cur][0] != '-' || argv[cur][1] == '\0' || argv[cur][2] != '\0') {
-			printError("Не флаг!");
-		}
+			case 'i':
+				pathInd = optind;
+				break;
 
-		// Чтение флагов
-		switch(argv[cur][1]) {
-		case 'i':
-			checkFlag(0);
-			if(cur + 1 < argc) pathInd = cur + 1;
-			else {
-				printError("Не передан аргумент к флагу!");
-			}
-			break;
-		case 'o':
-			checkFlag(1);
-			setNumValue(offset);
-			break;
-		case 'l':
-			checkFlag(2);
-			setNumValue(readLen);
-			break;
-		case 'g':
-			checkFlag(3);
-			setNumValue(biteLen);
-			break;
-		case 'n':
-			checkFlag(4);
-			setNumValue(biteAmount);
-			break;
-		case 'd':
-			checkFlag(5);
-			if(cur + 1 < argc) dirInd = cur + 1;
-			else {
-				printError("Не передан аргумент к флагу!");
-			}
-			break;
-		case 'f':
-			checkFlag(6);
-			if(cur + 1 < argc) formatInd = cur + 1;
-			else {
-				printError("Не передан аргумент к флагу!");
-			}
-			break;
+			case 'o':
+				sscanf(optarg, "%llu", &offset);
+				break;
+
+			case 'l':
+				sscanf(optarg, "%llu", &readLen);
+				break;
+
+			case 'g':
+				sscanf(optarg, "%llu", &biteLen);
+				break;
+
+			case 'n':
+				sscanf(optarg, "%llu", &biteAmount);
+				break;
+
+			case 'd':
+				dirInd = optind;
+				break;
+
+			case 'f':
+				formatInd = optind;
+				break;
 		}
 	}
 
