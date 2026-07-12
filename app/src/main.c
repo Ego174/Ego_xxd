@@ -15,6 +15,7 @@ main.c - главный модуль программы.
 int main(int argc, char *argv[], char *envp[]) {
 
 	setlocale(LC_ALL, "");
+	setbuf(stdout, NULL);
 
 	// Переменные
 	size_t offset = 0, readLen = 0, biteLen = 1, biteAmount = 16;
