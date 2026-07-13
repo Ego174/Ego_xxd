@@ -1,5 +1,5 @@
 /*
-xxd.h - заголовочный файл модуля xxd.c.
+formatPrint.h - заголовочный файл модуля formatPrint.c.
 
 Хаиров Егор Вадимович
 МК-101
@@ -15,10 +15,5 @@ for(size_t i = biteLen - 1; i < biteLen; --i) { \
     printf("%c%c", first + (first < 10 ? 0x30 : 0x37), second + (second < 10 ? 0x30 : 0x37)); \
 }
 
-// Вывод ошибки
-#define printError(text) \
-printf(text); \
-exit(1);
-
-// Вывод файла в хексе
-void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsigned char *filePath, unsigned char *format);
+// Вывод форматной строки
+void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, size_t idx, size_t biteLen);

@@ -1,0 +1,94 @@
+/*
+formatPrint.c - модуль для вывода форматной строки.
+
+Хаиров Егор Вадимович
+МК-101
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "formatPrint.h"
+
+// Вывод форматной строки
+void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, size_t idx, size_t biteLen) {
+
+    size_t formatLen = strlen(format);
+    for(size_t i = 0; i < formatLen; ++i) {
+
+        if(format[i] == '\\') {
+
+            ++i;
+            switch(format[i]) {
+
+            case '\\':
+                putchar('\\');
+                break;
+
+            case 'n':
+                putchar('\n');
+                break;
+
+            case 'r':
+                putchar('\r');
+                break;
+
+            case 't':
+                putchar('\t');
+                break;
+            
+            default:
+                printf("Wrong format input!\n");
+                exit(1);
+                break;
+            }
+        }
+
+        else if(format[i] == '%') {
+
+            ++i;
+            if(format[i] == 'i') printf("%llu", idx);
+            else if(format[i] == 'n') printf("%08X", offset);
+            else if(format[i] >= 0x30 && format[i] <= 0x39) {
+
+                size_t tmp = i, bite;
+                while(format[i] >= 0x30 && format[i] <= 0x39) ++i;
+
+                switch(format[i]) {
+
+                case 'x':
+                    sscanf(format + tmp, "%llu", &bite);
+                    if(bites[bite]) {
+                        printBite(bite);
+                    }
+                    else for(size_t x = 0; x < biteLen; ++x) printf("  ");
+                    break;
+
+                case 'c':
+                    sscanf(format + tmp, "%llu", &bite);
+                    if(bites[bite]) {
+                        for(size_t id = 0; id < biteLen; ++id)
+                            printf("%c", bites[bite][id] < 0x20 || bites[bite][id] >= 0x80 ? '.' : bites[bite][id]);
+                    }
+                    else for(size_t x = 0; x < biteLen; ++x) putchar(' ');
+                    break;
+                
+                default:
+                    printf("Wrong format input!\n");
+                    exit(1);
+                    break;
+                }
+
+            }
+            else {
+                printf("Wrong format input!\n");
+                exit(1);
+            }
+
+        }
+
+        else putchar(format[i] >= 0x20 && format[i] < 0x7F ? format[i] : '.');
+
+    }
+
+}
