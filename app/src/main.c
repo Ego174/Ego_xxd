@@ -6,19 +6,20 @@ main.c - главный модуль программы.
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include "getopt.h"
-
-// Вывод ошибки
-#define printError(text); \
-printf("%s\n", text); \
-exit(1);
+#include "xxd.h"
 
 int main(int argc, char *argv[], char *envp[]) {
 
+	setlocale(LC_ALL, "");
+	setbuf(stdout, NULL);
+
 	// Переменные
 	size_t offset = 0, readLen = 0, biteLen = 1, biteAmount = 16;
-	unsigned char pathInd = 0, dirInd = 0, formatInd = 0;
+	unsigned char *filePath = 0, *dirPath = 0, *format = 0;
 	// -----------------------------------------------
 
 	// Чтение флагов
@@ -30,7 +31,8 @@ int main(int argc, char *argv[], char *envp[]) {
 				break;
 
 			case 'i':
-				pathInd = optind;
+				filePath = malloc(strlen(optarg));
+				strcpy(filePath, optarg);
 				break;
 
 			case 'o':
@@ -39,6 +41,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
 			case 'l':
 				sscanf(optarg, "%llu", &readLen);
+				if(readLen == 0) exit(0);
 				break;
 
 			case 'g':
@@ -50,13 +53,17 @@ int main(int argc, char *argv[], char *envp[]) {
 				break;
 
 			case 'd':
-				dirInd = optind;
+				dirPath = malloc(strlen(optarg));
+				strcpy(dirPath, optarg);
 				break;
 
 			case 'f':
-				formatInd = optind;
+				format = malloc(strlen(optarg));
+				strcpy(format, optarg);
 				break;
 		}
 	}
+
+	xxd(offset, readLen, biteLen, biteAmount, filePath, format);
 
 }
