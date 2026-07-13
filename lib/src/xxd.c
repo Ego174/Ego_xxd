@@ -8,13 +8,7 @@ xxd.c - главный модуль библиотеки.
 #include <stdlib.h>
 #include <stdbool.h>
 #include "xxd.h"
-
-// Вывести байт в хексе
-#define printBite(ind) \
-for(size_t i = biteLen - 1; i < biteLen; --i) { \
-    unsigned char first = bites[ind][i] >> 4, second = bites[ind][i] & 0x0F; \
-    printf("%c%c", first + (first < 10 ? 0x30 : 0x37), second + (second < 10 ? 0x30 : 0x37)); \
-}
+#include "formatPrint.h"
 
 // Флаг окончаия чтения
 static bool doneReading = false;
@@ -27,12 +21,23 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
     if(!input) {
         printError(("Can't open file: %s!", filePath));
     }
+
+    // Вывод названия файла
     printf("%s:\n", filePath);
+
+    // Проверка отступа
+    fseeko64(input, 0, SEEK_END);
+    if(offset >= ftello64(input)) {
+        printf("File is too small\n--------\n\n");
+        return;
+    }
+    
+    // Установка отступа
     fseeko64(input, offset, SEEK_SET);
     if(readLen) readLen += offset;
 
     // Инициализация буфера
-    size_t totalByte, bufInd, byteRead, strLen = biteAmount * biteLen;
+    size_t totalByte, bufInd, byteRead, strLen = biteAmount * biteLen, idx = 0;
     unsigned char** bites = malloc(strLen);
     if(!bites) {
         printError("Can't allocate memory for bites buffer!\n");
@@ -166,7 +171,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
 
             }
 
-            formatPrint(format, bites, offset);
+            formatPrint(format, bites, offset, idx, biteLen);
 
             // Подсчёт отступа
             offset += strLen;
@@ -175,6 +180,8 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
             if(doneReading) break;
 
         }
+
+        ++idx;
 
     }
 
