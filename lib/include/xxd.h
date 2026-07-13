@@ -14,4 +14,4 @@ printf("%s\n", text); \
 exit(1);
 
 // Вывод файла в хексе
-void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsigned char *filePath, unsigned char *dirPath, unsigned char *format);
+void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsigned char *filePath, unsigned char *format);

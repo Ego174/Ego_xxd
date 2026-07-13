@@ -41,6 +41,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
 			case 'l':
 				sscanf(optarg, "%llu", &readLen);
+				if(readLen == 0) exit(0);
 				break;
 
 			case 'g':
@@ -63,6 +64,6 @@ int main(int argc, char *argv[], char *envp[]) {
 		}
 	}
 
-	xxd(offset, readLen, biteLen, biteAmount, filePath, dirPath, format);
+	xxd(offset, readLen, biteLen, biteAmount, filePath, format);
 
 }
