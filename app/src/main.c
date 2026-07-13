@@ -66,6 +66,9 @@ int main(int argc, char *argv[], char *envp[]) {
 
 			case 'g':
 				sscanf(optarg, "%llu", &biteLen);
+				if(biteLen != 1 && biteLen != 2 && biteLen != 4) {
+					printError("Wrong bite size!\n");
+				}
 				break;
 
 			case 'n':

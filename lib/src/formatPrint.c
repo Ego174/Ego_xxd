@@ -19,7 +19,6 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
         if(format[i] == '\\') {
 
             ++i;
-            putchar('\\');
             switch(format[i]) {
 
             case '\\':
@@ -58,14 +57,20 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
                 switch(format[i]) {
 
                 case 'x':
-                    sscanf(format, "%llux", &bite);
-                    printBite(bite);
+                    sscanf(format + tmp, "%llu", &bite);
+                    if(bites[bite]) {
+                        printBite(bite);
+                    }
+                    else for(size_t x = 0; x < biteLen; ++x) printf("  ");
                     break;
 
                 case 'c':
-                    sscanf(format, "%lluc", &bite);
-                    for(size_t id = 0; id < biteLen; ++id)
-                        printf("%c", bites[bite][id] < 0x20 || bites[bite][id] >= 0x80 ? '.' : bites[bite][id]);
+                    sscanf(format + tmp, "%llu", &bite);
+                    if(bites[bite]) {
+                        for(size_t id = 0; id < biteLen; ++id)
+                            printf("%c", bites[bite][id] < 0x20 || bites[bite][id] >= 0x80 ? '.' : bites[bite][id]);
+                    }
+                    else for(size_t x = 0; x < biteLen; ++x) putchar(' ');
                     break;
                 
                 default:
@@ -82,7 +87,7 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
 
         }
 
-        else putchar(format[i]);
+        else putchar(format[i] >= 0x20 && format[i] < 0x7F ? format[i] : '.');
 
     }
 
