@@ -8,18 +8,37 @@ main.c - главный модуль программы.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include "getopt.h"
 #include "xxd.h"
 
+#define printXxd(path) xxd(offset, readLen, biteLen, biteAmount, (path), format);
+
+unsigned char* buildFullPath(unsigned char* dir, unsigned char* file) {
+	unsigned char* fullPath = malloc(strlen(dir) + strlen(file) + 2);
+	if(!fullPath) {
+		printError("Не удалось выделить буфер под полный путь!\n");
+	}
+	strcpy(fullPath, dir);
+	#ifdef _WIN32
+	strcat(fullPath, "\\");
+	#else
+	strcat(fullPath, "/");
+	#endif
+	unsigned char ind = strlen(fullPath);
+	snprintf(fullPath + ind, 256 - ind, "%s", file);
+	return fullPath;
+}
+
 int main(int argc, char *argv[], char *envp[]) {
 
-	setlocale(LC_ALL, "");
 	setbuf(stdout, NULL);
 
 	// Переменные
 	size_t offset = 0, readLen = 0, biteLen = 1, biteAmount = 16;
 	unsigned char *filePath = 0, *dirPath = 0, *format = 0;
+	DIR* dir = 0;
 	// -----------------------------------------------
 
 	// Чтение флагов
@@ -28,10 +47,11 @@ int main(int argc, char *argv[], char *envp[]) {
 		switch (c) {
 			case 'h':
 				printf("Usage: %s -i -o -l -g -n -d -f\n", argv[0]);
+				exit(0);
 				break;
 
 			case 'i':
-				filePath = malloc(strlen(optarg));
+				filePath = malloc(strlen(optarg) + 1);
 				strcpy(filePath, optarg);
 				break;
 
@@ -53,17 +73,52 @@ int main(int argc, char *argv[], char *envp[]) {
 				break;
 
 			case 'd':
-				dirPath = malloc(strlen(optarg));
+				dirPath = malloc(strlen(optarg) + 1);
 				strcpy(dirPath, optarg);
 				break;
 
 			case 'f':
-				format = malloc(strlen(optarg));
+				format = malloc(strlen(optarg) + 1);
 				strcpy(format, optarg);
 				break;
 		}
 	}
 
-	xxd(offset, readLen, biteLen, biteAmount, filePath, format);
+	if(dirPath) {
+
+		// Открытие директории
+		struct dirent* de;
+		struct stat path_stat;
+		dir = opendir(dirPath);
+		if(!dir) {
+			printError(("Can't open directory: %s!\n", dirPath));
+		}
+		
+		// Чтение директории
+		while((de = readdir(dir)) != NULL) {
+
+			// Буфер под полный путь к файлам
+			unsigned char* fullPath = buildFullPath(dirPath, de->d_name);
+
+			stat(fullPath, &path_stat);
+			if(S_ISREG(path_stat.st_mode)) {
+				printXxd(fullPath);
+			}
+
+			free(fullPath);
+
+		}
+
+		closedir(dir);
+		free(dirPath);
+
+	}
+
+	if(filePath) {
+		printXxd(filePath);
+		free(filePath);
+	}
+
+	if(format) free(format);
 
 }
