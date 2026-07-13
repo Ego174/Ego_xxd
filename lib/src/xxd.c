@@ -10,7 +10,7 @@ xxd.c - главный модуль библиотеки.
 #include "xxd.h"
 
 // Вывести байт в хексе
-#define printByte(); \
+#define printByte() \
 unsigned char first = buf[bufInd] >> 4, second = buf[bufInd] & 0x0F; \
 printf("%c%c", first + (first < 10 ? 0x30 : 0x37), second + (second < 10 ? 0x30 : 0x37));
 
@@ -23,7 +23,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
     // Открытие файла
     FILE* input = fopen(filePath, "r");
     if(!input) {
-        printError("Can't open file!");
+        printError(("Can't open file: %s!", filePath));
     }
     fseeko64(input, offset, SEEK_SET);
     if(readLen) readLen += offset;
@@ -32,7 +32,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
     size_t totalByte, bufInd, byteRead;
     unsigned char* buf = malloc(biteLen);
     if(!buf) {
-        printError("Can't allocate memory for buffer!");
+        printError("Can't allocate memory for buffer!\n");
     }
 
     printf("%s:\n", filePath);

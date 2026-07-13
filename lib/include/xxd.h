@@ -9,8 +9,8 @@ xxd.h - заголовочный файл модуля xxd.c.
 #include <stdio.h>
 
 // Вывод ошибки
-#define printError(text); \
-printf("%s\n", text); \
+#define printError(text) \
+printf(text); \
 exit(1);
 
 // Вывод файла в хексе
