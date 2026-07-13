@@ -15,7 +15,7 @@ main.c - главный модуль программы.
 
 #define printXxd(path) xxd(offset, readLen, biteLen, biteAmount, (path), format);
 
-unsigned char* buildFullPath(dir, file) {
+unsigned char* buildFullPath(unsigned char* dir, unsigned char* file) {
 	unsigned char* fullPath = malloc(strlen(dir) + strlen(file) + 2);
 	if(!fullPath) {
 		printError("Не удалось выделить буфер под полный путь!\n");
