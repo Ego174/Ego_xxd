@@ -20,6 +20,7 @@ main.c - главный модуль программы.
 
 #define printXxd(path) xxd(offset, readLen, biteLen, biteAmount, (path), format);
 
+// Построение пути к файлу file в директории dir
 unsigned char* buildFullPath(unsigned char* dir, unsigned char* file) {
 	unsigned char* fullPath = malloc(strlen(dir) + strlen(file) + 2);
 	if(!fullPath) {
@@ -91,6 +92,7 @@ int main(int argc, char *argv[], char *envp[]) {
 		}
 	}
 
+	// Обход директории
 	if(dirPath) {
 
         #ifdef _WIN32
@@ -138,6 +140,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
 	}
 
+	// Вывод одного файла
 	if(filePath) {
 		printXxd(filePath);
 		free(filePath);
