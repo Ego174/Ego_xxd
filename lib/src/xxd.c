@@ -21,7 +21,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
     // Открытие файла
     FILE* input = fopen(filePath, "r");
     if(!input) {
-        printError("Can't open file: %s!", filePath);
+        printError("Can't open file!\n");
     }
 
     // Вывод названия файла
