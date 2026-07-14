@@ -26,14 +26,14 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
     printf("%s:\n", filePath);
 
     // Проверка отступа
-    fseeko64(input, 0, SEEK_END);
-    if(offset >= ftello64(input)) {
+    fseeko(input, 0, SEEK_END);
+    if(offset >= ftello(input)) {
         printf("File is too small\n--------\n\n");
         return;
     }
     
     // Установка отступа
-    fseeko64(input, offset, SEEK_SET);
+    fseeko(input, offset, SEEK_SET);
     if(readLen) readLen += offset;
 
     // Инициализация буфера
@@ -58,7 +58,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
         if(!format) {
 
             // Вывод отступа
-            printf("%08X  ", offset);
+            printf("%08lX  ", offset);
 
             // Счетчик прочитанных байт
             totalByte = 0;
@@ -78,9 +78,9 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
                     byteRead = fread(bites[0], 1, biteLen, input);
 
                     // Прочитано нужное кол-во байт, обрезаем прочитанное
-                    if(readLen && (ftello64(input) > readLen)) {
+                    if(readLen && (ftello(input) > readLen)) {
                         doneReading = true;
-                        byteRead -= ftello64(input) - readLen;
+                        byteRead -= ftello(input) - readLen;
                         for(bufInd = byteRead; bufInd < biteLen; ++bufInd) bites[0][bufInd] = 0;
                     }
 
@@ -105,7 +105,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
 
                 }
                 
-                if(ftello64(input) == readLen) doneReading = true;
+                if(ftello(input) == readLen) doneReading = true;
 
             }
 
@@ -113,7 +113,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
             if(biteLen == 1) {
 
                 printf("| ");
-                fseeko64(input, offset, SEEK_SET);
+                fseeko(input, offset, SEEK_SET);
                 unsigned char tmp;
                 for(size_t i = 0; i < totalByte; ++i) {
                     fread(&tmp, 1, 1, input);
@@ -151,9 +151,9 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
                     byteRead = fread(bites[bite], 1, biteLen, input);
 
                     // Прочитано нужное кол-во байт, обрезаем прочитанное
-                    if(readLen && (ftello64(input) > readLen)) {
+                    if(readLen && (ftello(input) > readLen)) {
                         doneReading = true;
-                        byteRead -= ftello64(input) - readLen;
+                        byteRead -= ftello(input) - readLen;
                         for(bufInd = byteRead; bufInd < biteLen; ++bufInd) bites[bite][bufInd] = 0;
                     }
 
@@ -167,7 +167,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
 
                 }
                 
-                if(ftello64(input) == readLen) doneReading = true;
+                if(ftello(input) == readLen) doneReading = true;
 
             }
 

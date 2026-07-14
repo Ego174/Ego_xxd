@@ -47,8 +47,8 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
         else if(format[i] == '%') {
 
             ++i;
-            if(format[i] == 'i') printf("%llu", idx);
-            else if(format[i] == 'n') printf("%08X", offset);
+            if(format[i] == 'i') printf("%zu", idx);
+            else if(format[i] == 'n') printf("%08lX", offset);
             else if(format[i] >= 0x30 && format[i] <= 0x39) {
 
                 size_t tmp = i, bite;
@@ -57,7 +57,7 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
                 switch(format[i]) {
 
                 case 'x':
-                    sscanf(format + tmp, "%llu", &bite);
+                    sscanf(format + tmp, "%zu", &bite);
                     if(bites[bite]) {
                         printBite(bite);
                     }
@@ -65,7 +65,7 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
                     break;
 
                 case 'c':
-                    sscanf(format + tmp, "%llu", &bite);
+                    sscanf(format + tmp, "%zu", &bite);
                     if(bites[bite]) {
                         for(size_t id = 0; id < biteLen; ++id)
                             printf("%c", bites[bite][id] < 0x20 || bites[bite][id] >= 0x80 ? '.' : bites[bite][id]);
