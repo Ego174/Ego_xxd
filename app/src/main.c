@@ -61,23 +61,23 @@ int main(int argc, char *argv[], char *envp[]) {
 				break;
 
 			case 'o':
-				sscanf(optarg, "%llu", &offset);
+				sscanf(optarg, "%zu", &offset);
 				break;
 
 			case 'l':
-				sscanf(optarg, "%llu", &readLen);
+				sscanf(optarg, "%zu", &readLen);
 				if(readLen == 0) exit(0);
 				break;
 
 			case 'g':
-				sscanf(optarg, "%llu", &biteLen);
+				sscanf(optarg, "%zu", &biteLen);
 				if(biteLen != 1 && biteLen != 2 && biteLen != 4) {
 					printError("Wrong bite size!\n");
 				}
 				break;
 
 			case 'n':
-				sscanf(optarg, "%llu", &biteAmount);
+				sscanf(optarg, "%zu", &biteAmount);
 				break;
 
 			case 'd':
