@@ -11,41 +11,43 @@ xxd.c - главный модуль библиотеки.
 #include "formatPrint.h"
 
 // Флаг окончаия чтения
-static bool doneReading = false;
+static bool doneReading;
 
 // Вывод файла в хексе
 void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsigned char *filePath, unsigned char *format) {
 
+    doneReading = false;
+
     // Открытие файла
     FILE* input = fopen(filePath, "r");
     if(!input) {
-        printError(("Can't open file: %s!", filePath));
+        printError("Can't open file: %s!", filePath);
     }
 
     // Вывод названия файла
     printf("%s:\n", filePath);
 
     // Проверка отступа
-    fseeko(input, 0, SEEK_END);
-    if(offset >= ftello(input)) {
+    fseek(input, 0, SEEK_END);
+    if(offset >= ftell(input)) {
         printf("File is too small\n--------\n\n");
         return;
     }
     
     // Установка отступа
-    fseeko(input, offset, SEEK_SET);
+    fseek(input, offset, SEEK_SET);
     if(readLen) readLen += offset;
 
     // Инициализация буфера
     size_t totalByte, bufInd, byteRead, strLen = biteAmount * biteLen, idx = 0;
-    unsigned char** bites = malloc(strLen);
+    unsigned char** bites = malloc(biteAmount * sizeof(unsigned char*));
     if(!bites) {
         printError("Can't allocate memory for bites buffer!\n");
     }
     for(size_t i = 0; i < biteAmount; ++i) {
         bites[i] = malloc(biteLen);
         if(!bites[i]) {
-            printError(("Can't allocate memory for bite buffer!\n"));
+            printError("Can't allocate memory for bite buffer!\n");
         }
     }
     if(!format)
@@ -58,7 +60,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
         if(!format) {
 
             // Вывод отступа
-            printf("%08lX  ", offset);
+            printf("%08zX  ", offset);
 
             // Счетчик прочитанных байт
             totalByte = 0;
@@ -78,9 +80,9 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
                     byteRead = fread(bites[0], 1, biteLen, input);
 
                     // Прочитано нужное кол-во байт, обрезаем прочитанное
-                    if(readLen && (ftello(input) > readLen)) {
+                    if(readLen && (ftell(input) > readLen)) {
                         doneReading = true;
-                        byteRead -= ftello(input) - readLen;
+                        byteRead -= ftell(input) - readLen;
                         for(bufInd = byteRead; bufInd < biteLen; ++bufInd) bites[0][bufInd] = 0;
                     }
 
@@ -105,7 +107,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
 
                 }
                 
-                if(ftello(input) == readLen) doneReading = true;
+                if(ftell(input) == readLen) doneReading = true;
 
             }
 
@@ -113,7 +115,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
             if(biteLen == 1) {
 
                 printf("| ");
-                fseeko(input, offset, SEEK_SET);
+                fseek(input, offset, SEEK_SET);
                 unsigned char tmp;
                 for(size_t i = 0; i < totalByte; ++i) {
                     fread(&tmp, 1, 1, input);
@@ -127,7 +129,10 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
 
             putchar('\n');
             if(feof(input)) doneReading = true;
-            if(doneReading) break;
+            if(doneReading) {
+                free(bites[0]);
+                break;
+            }
         }
 
         // Форматный вывод
@@ -151,9 +156,9 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
                     byteRead = fread(bites[bite], 1, biteLen, input);
 
                     // Прочитано нужное кол-во байт, обрезаем прочитанное
-                    if(readLen && (ftello(input) > readLen)) {
+                    if(readLen && (ftell(input) > readLen)) {
                         doneReading = true;
-                        byteRead -= ftello(input) - readLen;
+                        byteRead -= ftell(input) - readLen;
                         for(bufInd = byteRead; bufInd < biteLen; ++bufInd) bites[bite][bufInd] = 0;
                     }
 
@@ -167,7 +172,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
 
                 }
                 
-                if(ftello(input) == readLen) doneReading = true;
+                if(ftell(input) == readLen) doneReading = true;
 
             }
 
@@ -186,5 +191,7 @@ void xxd(size_t offset, size_t readLen, size_t biteLen, size_t biteAmount, unsig
     }
 
     printf("--------\n\n");
+
+    free(bites);
 
 }

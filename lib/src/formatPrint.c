@@ -48,7 +48,7 @@ void formatPrint(unsigned char* format, unsigned char** bites, size_t offset, si
 
             ++i;
             if(format[i] == 'i') printf("%zu", idx);
-            else if(format[i] == 'n') printf("%08lX", offset);
+            else if(format[i] == 'n') printf("%08zX", offset);
             else if(format[i] >= 0x30 && format[i] <= 0x39) {
 
                 size_t tmp = i, bite;

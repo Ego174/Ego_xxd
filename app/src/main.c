@@ -128,7 +128,7 @@ int main(int argc, char *argv[], char *envp[]) {
             while((de = readdir(dir)) != NULL) {
                 unsigned char* fullPath = buildFullPath(dirPath, de->d_name);
                 stat(fullPath, &path_stat);
-                if(S_ISREG(path_stat.st_mode)) {
+                if(stat(fullPath, &path_stat) == 0 && S_ISREG(path_stat.st_mode)) {
                     printXxd(fullPath);
                 }
                 free(fullPath);
