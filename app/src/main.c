@@ -5,10 +5,15 @@ main.c - главный модуль программы.
 МК-101
 */
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <dirent.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
 #include <sys/stat.h>
 #include "getopt.h"
 #include "xxd.h"
@@ -38,7 +43,6 @@ int main(int argc, char *argv[], char *envp[]) {
 	// Переменные
 	size_t offset = 0, readLen = 0, biteLen = 1, biteAmount = 16;
 	unsigned char *filePath = 0, *dirPath = 0, *format = 0;
-	DIR* dir = 0;
 	// -----------------------------------------------
 
 	// Чтение флагов
@@ -89,30 +93,47 @@ int main(int argc, char *argv[], char *envp[]) {
 
 	if(dirPath) {
 
-		// Открытие директории
-		struct dirent* de;
-		struct stat path_stat;
-		dir = opendir(dirPath);
-		if(!dir) {
-			printError(("Can't open directory: %s!\n", dirPath));
-		}
-		
-		// Чтение директории
-		while((de = readdir(dir)) != NULL) {
+        #ifdef _WIN32
+            char searchPath[512];
+            snprintf(searchPath, sizeof(searchPath), "%s\\*", dirPath);
+            WIN32_FIND_DATAA findData;
+            HANDLE hFind = FindFirstFileA(searchPath, &findData);
+            if(hFind == INVALID_HANDLE_VALUE) {
+                printError(("Can't open directory: %s!\n", dirPath));
+            } else {
+                while(FindNextFileA(hFind, &findData) != 0) {
+                    if(strcmp(findData.cFileName, ".") == 0 || strcmp(findData.cFileName, "..") == 0)
+                        continue;
 
-			// Буфер под полный путь к файлам
-			unsigned char* fullPath = buildFullPath(dirPath, de->d_name);
+                    unsigned char* fullPath = buildFullPath(dirPath, findData.cFileName);
+                    struct stat path_stat;
+                    if(stat(fullPath, &path_stat) == 0) {
+                        if(S_ISREG(path_stat.st_mode)) {
+                            printXxd(fullPath);
+                        }
+                    }
+                    free(fullPath);
+                }
+                FindClose(hFind);
+            }
+        #else
+            DIR* dir = opendir(dirPath);
+            if(!dir) {
+                printError(("Can't open directory: %s!\n", dirPath));
+            }
+            struct dirent* de;
+            struct stat path_stat;
+            while((de = readdir(dir)) != NULL) {
+                unsigned char* fullPath = buildFullPath(dirPath, de->d_name);
+                stat(fullPath, &path_stat);
+                if(S_ISREG(path_stat.st_mode)) {
+                    printXxd(fullPath);
+                }
+                free(fullPath);
+            }
+            closedir(dir);
+        #endif
 
-			stat(fullPath, &path_stat);
-			if(S_ISREG(path_stat.st_mode)) {
-				printXxd(fullPath);
-			}
-
-			free(fullPath);
-
-		}
-
-		closedir(dir);
 		free(dirPath);
 
 	}
