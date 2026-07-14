@@ -101,7 +101,7 @@ int main(int argc, char *argv[], char *envp[]) {
             WIN32_FIND_DATAA findData;
             HANDLE hFind = FindFirstFileA(searchPath, &findData);
             if(hFind == INVALID_HANDLE_VALUE) {
-                printError(("Can't open directory: %s!\n", dirPath));
+                printError("Can't open directory!\n");
             } else {
                 while(FindNextFileA(hFind, &findData) != 0) {
                     if(strcmp(findData.cFileName, ".") == 0 || strcmp(findData.cFileName, "..") == 0)
@@ -121,7 +121,7 @@ int main(int argc, char *argv[], char *envp[]) {
         #else
             DIR* dir = opendir(dirPath);
             if(!dir) {
-                printError(("Can't open directory: %s!\n", dirPath));
+                printError("Can't open directory!\n");
             }
             struct dirent* de;
             struct stat path_stat;
